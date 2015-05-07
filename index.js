@@ -4,33 +4,65 @@ class Comp extends React.Component {
   constructor() {
     super(arguments);
     this.state = {};
-    this.state.punctuation = '.';
-    this.handleClick = this.handleClick.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleLogOut = this.handleLogOut.bind(this);
   }
 
-  handleClick(e) {
+  handleSubmit (e) {
     e.preventDefault();
     this.setState({
-      punctuation: React.findDOMNode(this.refs.thevalue).value
+      submitted: true,
+      first: React.findDOMNode(this.refs.first.refs.lf).value,
+      last: React.findDOMNode(this.refs.last.refs.lf).value,
+      email: React.findDOMNode(this.refs.email.refs.lf).value
     });
   }
 
-  renderMessage() {
-    return this.props.message + this.state.punctuation;
+  handleLogOut (e) {
+    e.preventDefault();
+    this.setState({
+      submitted: false,
+      first: '',
+      last: '',
+      email: ''
+    });
   }
 
   render() {
-    return (
-      <div>
-        <h1>{this.renderMessage()}</h1>
-        <input ref="thevalue" type="text" defaultValue="." />
-        <button onClick={this.handleClick}>Change Punctuation</button>
-      </div>
-    )
+    if (this.state.submitted) {
+      return (
+        <div>
+          <h1>Your Profile</h1>
+          <p>First Name: {this.state.first}</p>
+          <p>Last Name: {this.state.last}</p>
+          <p>Email: {this.state.email}</p>
+          <button onClick={this.handleLogOut}>Log Out</button>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <h1>Register yo self</h1>
+          <LabelField ref="first" name="first" label="First Name" />
+          <LabelField ref="last" name="last" label="Last Name" />
+          <LabelField ref="email" name="email" label="Email" />
+          <button onClick={this.handleSubmit}>Submit</button>
+        </div>
+      );
+    }
   }
 }
 
-var msg = "Hello, y'all";
+class LabelField extends React.Component {
+  render () {
+    return (
+      <div>
+        <label for="{this.props.name}">{this.props.label}</label><br />
+        <input ref="lf" type="text" /><br />
+      </div>
+    );
+  }
+}
 
-React.render(<Comp message={msg} />, document.getElementById('app'));
+React.render(<Comp />, document.getElementById('app'));
 
