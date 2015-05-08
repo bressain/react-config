@@ -8,18 +8,16 @@ class Comp extends React.Component {
     this.handleLogOut = this.handleLogOut.bind(this);
   }
 
-  handleSubmit (e) {
-    e.preventDefault();
+  handleSubmit (first, last, email) {
     this.setState({
       submitted: true,
-      first: React.findDOMNode(this.refs.first.refs.lf).value,
-      last: React.findDOMNode(this.refs.last.refs.lf).value,
-      email: React.findDOMNode(this.refs.email.refs.lf).value
+      first,
+      last,
+      email
     });
   }
 
-  handleLogOut (e) {
-    e.preventDefault();
+  handleLogOut () {
     this.setState({
       submitted: false,
       first: '',
@@ -31,38 +29,72 @@ class Comp extends React.Component {
   render() {
     if (this.state.submitted) {
       return (
-        <div>
-          <h1>Your Profile</h1>
-          <p>First Name: {this.state.first}</p>
-          <p>Last Name: {this.state.last}</p>
-          <p>Email: {this.state.email}</p>
-          <button onClick={this.handleLogOut}>Log Out</button>
-        </div>
+        <ProfileInfo
+          first={this.state.first}
+          last={this.state.last}
+          email={this.state.email}
+          handleLogOut={this.handleLogOut} />
       );
     } else {
-      return (
-        <div>
-          <h1>Register yo self</h1>
-          <LabelField ref="first" name="first" label="First Name" />
-          <LabelField ref="last" name="last" label="Last Name" />
-          <LabelField ref="email" name="email" label="Email" />
-          <button onClick={this.handleSubmit}>Submit</button>
-        </div>
-      );
+      return (<RegisterForm handleSubmit={this.handleSubmit} />);
     }
   }
 }
 
-class LabelField extends React.Component {
-  render () {
+class RegisterForm extends React.Component {
+  constructor() {
+    super(arguments);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleSubmit (e) {
+    e.preventDefault();
+
+    let first = React.findDOMNode(this.refs.first).value;
+    let last = React.findDOMNode(this.refs.last).value;
+    let email = React.findDOMNode(this.refs.email).value;
+
+    this.props.handleSubmit(first, last, email);
+  }
+
+  render() {
     return (
       <div>
-        <label for="{this.props.name}">{this.props.label}</label><br />
-        <input ref="lf" type="text" /><br />
+        <h1>Register yo self</h1>
+        <label for="first">First Name</label><br />
+        <input ref="first" type="text" /><br />
+        <label for="last">Last Name</label><br />
+        <input ref="last" type="text" /><br />
+        <label for="email">Email</label><br />
+        <input ref="email" type="text" /><br />
+        <button onClick={this.handleSubmit}>Submit</button>
       </div>
     );
   }
 }
 
-React.render(<Comp />, document.getElementById('app'));
+class ProfileInfo extends React.Component {
+  constructor() {
+    super(arguments);
+    this.handleLogOut = this.handleLogOut.bind(this);
+  }
 
+  handleLogOut (e) {
+    e.preventDefault();
+    this.props.handleLogOut();
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Your Profile</h1>
+        <p>First Name: {this.props.first}</p>
+        <p>Last Name: {this.props.last}</p>
+        <p>Email: {this.props.email}</p>
+        <button onClick={this.handleLogOut}>Log Out</button>
+      </div>
+    )
+  }
+}
+
+React.render(<Comp />, document.getElementById('app'));
