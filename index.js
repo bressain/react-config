@@ -4,25 +4,15 @@ class Comp extends React.Component {
   constructor() {
     super(arguments);
     this.state = {};
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleLogOut = this.handleLogOut.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  handleSubmit (first, last, email) {
+  handleClick (first, last, email) {
     this.setState({
-      submitted: true,
+      submitted: !this.state.submitted,
       first,
       last,
       email
-    });
-  }
-
-  handleLogOut () {
-    this.setState({
-      submitted: false,
-      first: '',
-      last: '',
-      email: ''
     });
   }
 
@@ -33,10 +23,10 @@ class Comp extends React.Component {
           first={this.state.first}
           last={this.state.last}
           email={this.state.email}
-          handleLogOut={this.handleLogOut} />
+          handleLogOut={this.handleClick} />
       );
     } else {
-      return (<RegisterForm handleSubmit={this.handleSubmit} />);
+      return (<RegisterForm handleSubmit={this.handleClick} />);
     }
   }
 }
@@ -81,7 +71,7 @@ class ProfileInfo extends React.Component {
 
   handleLogOut (e) {
     e.preventDefault();
-    this.props.handleLogOut();
+    this.props.handleLogOut('', '', '');
   }
 
   render() {
