@@ -1,13 +1,13 @@
 var React = require('react');
 
-class Comp extends React.Component {
+class SelfRegistration extends React.Component {
   constructor() {
     super(arguments);
     this.state = {};
-    this.handleClick = this.handleClick.bind(this);
+    this.updateProfile = this.updateProfile.bind(this);
   }
 
-  handleClick (first, last, email) {
+  updateProfile (first, last, email) {
     this.setState({
       submitted: !this.state.submitted,
       first,
@@ -23,10 +23,10 @@ class Comp extends React.Component {
           first={this.state.first}
           last={this.state.last}
           email={this.state.email}
-          handleLogOut={this.handleClick} />
+          handleLogOut={this.updateProfile} />
       );
     } else {
-      return (<RegisterForm handleSubmit={this.handleClick} />);
+      return <RegisterForm handleSubmit={this.updateProfile} />;
     }
   }
 }
@@ -87,4 +87,4 @@ class ProfileInfo extends React.Component {
   }
 }
 
-React.render(<Comp />, document.getElementById('app'));
+React.render(<SelfRegistration />, document.getElementById('app'));
