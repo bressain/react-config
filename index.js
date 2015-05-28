@@ -1,10 +1,11 @@
-var React = require('react');
+import React from 'react'
+
 
 class SelfRegistration extends React.Component {
   constructor() {
-    super(arguments);
-    this.state = {};
-    this.updateProfile = this.updateProfile.bind(this);
+    super(arguments)
+    this.state = {}
+    this.updateProfile = this.updateProfile.bind(this)
   }
 
   updateProfile (first, last, email) {
@@ -13,7 +14,7 @@ class SelfRegistration extends React.Component {
       first,
       last,
       email
-    });
+    })
   }
 
   render() {
@@ -24,27 +25,27 @@ class SelfRegistration extends React.Component {
           last={this.state.last}
           email={this.state.email}
           handleLogOut={this.updateProfile} />
-      );
+      )
     } else {
-      return <RegisterForm handleSubmit={this.updateProfile} />;
+      return <RegisterForm handleSubmit={this.updateProfile} />
     }
   }
 }
 
 class RegisterForm extends React.Component {
   constructor() {
-    super(arguments);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    super(arguments)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleSubmit (e) {
-    e.preventDefault();
+    e.preventDefault()
 
-    let first = React.findDOMNode(this.refs.first).value;
-    let last = React.findDOMNode(this.refs.last).value;
-    let email = React.findDOMNode(this.refs.email).value;
+    let first = React.findDOMNode(this.refs.first).value
+    let last = React.findDOMNode(this.refs.last).value
+    let email = React.findDOMNode(this.refs.email).value
 
-    this.props.handleSubmit(first, last, email);
+    this.props.handleSubmit(first, last, email)
   }
 
   render() {
@@ -59,19 +60,19 @@ class RegisterForm extends React.Component {
         <input ref="email" type="text" /><br />
         <button onClick={this.handleSubmit}>Submit</button>
       </div>
-    );
+    )
   }
 }
 
 class ProfileInfo extends React.Component {
   constructor() {
-    super(arguments);
-    this.handleLogOut = this.handleLogOut.bind(this);
+    super(arguments)
+    this.handleLogOut = this.handleLogOut.bind(this)
   }
 
   handleLogOut (e) {
-    e.preventDefault();
-    this.props.handleLogOut('', '', '');
+    e.preventDefault()
+    this.props.handleLogOut('', '', '')
   }
 
   render() {
@@ -87,4 +88,4 @@ class ProfileInfo extends React.Component {
   }
 }
 
-React.render(<SelfRegistration />, document.getElementById('app'));
+React.render(<SelfRegistration />, document.getElementById('app'))
