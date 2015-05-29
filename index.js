@@ -1,30 +1,62 @@
+import assign from 'lodash/object/assign'
+import clone from 'lodash/lang/clone'
+import autobind from 'autobind-decorator'
 import React from 'react'
+import EventEmitter from 'events'
 
+var ProfileStore = assign({}, EventEmitter.prototype, {
+  getProfile () {
+    return clone(this.profile)
+  },
+  setProfile (profile) {
+    this.profile = profile
+    this.emit('change')
+  },
+  isProfileSet () {
+    return !!this.profile
+  },
+  listen (listener) {
+    this.addListener('change', listener)
+  },
+  unlisten (listener) {
+    this.removeListener('change', listener)
+  }
+})
 
-class SelfRegistration extends React.Component {
-  constructor() {
+@autobind
+class App extends React.Component {
+  constructor () {
     super(arguments)
-    this.state = {}
-    this.updateProfile = this.updateProfile.bind(this)
+    this.state = this.getStateFromStore()
   }
 
-  updateProfile (first, last, email) {
-    this.setState({
-      submitted: !this.state.submitted,
-      first,
-      last,
-      email
-    })
+  componentDidMount () {
+    ProfileStore.listen(this.onStoreChange)
   }
 
-  render() {
-    if (this.state.submitted) {
+  componentWillUnmount () {
+    ProfileStore.unlisten(this.onStoreChange)
+  }
+
+  onStoreChange () {
+    this.setState(this.getStateFromStore())
+  }
+
+  getStateFromStore () {
+    return {
+      profile: ProfileStore.getProfile()
+    }
+  }
+
+  updateProfile (profile) {
+    profile.submitted = !this.state.submitted
+    ProfileStore.setProfile(profile)
+  }
+
+  render () {
+    if (this.state.profile && this.state.profile.submitted) {
       return (
-        <ProfileInfo
-          first={this.state.first}
-          last={this.state.last}
-          email={this.state.email}
-          handleLogOut={this.updateProfile} />
+        <ProfileInfo profile={this.state.profile} handleLogOut={this.updateProfile} />
       )
     } else {
       return <RegisterForm handleSubmit={this.updateProfile} />
@@ -32,10 +64,10 @@ class SelfRegistration extends React.Component {
   }
 }
 
+@autobind
 class RegisterForm extends React.Component {
-  constructor() {
+  constructor () {
     super(arguments)
-    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleSubmit (e) {
@@ -45,10 +77,10 @@ class RegisterForm extends React.Component {
     let last = React.findDOMNode(this.refs.last).value
     let email = React.findDOMNode(this.refs.email).value
 
-    this.props.handleSubmit(first, last, email)
+    this.props.handleSubmit({first, last, email})
   }
 
-  render() {
+  render () {
     return (
       <div>
         <h1>Register yo self</h1>
@@ -64,28 +96,28 @@ class RegisterForm extends React.Component {
   }
 }
 
+@autobind
 class ProfileInfo extends React.Component {
-  constructor() {
+  constructor () {
     super(arguments)
-    this.handleLogOut = this.handleLogOut.bind(this)
   }
 
   handleLogOut (e) {
     e.preventDefault()
-    this.props.handleLogOut('', '', '')
+    this.props.handleLogOut({})
   }
 
-  render() {
+  render () {
     return (
       <div>
         <h1>Your Profile</h1>
-        <p>First Name: {this.props.first}</p>
-        <p>Last Name: {this.props.last}</p>
-        <p>Email: {this.props.email}</p>
+        <p>First Name: {this.props.profile.first}</p>
+        <p>Last Name: {this.props.profile.last}</p>
+        <p>Email: {this.props.profile.email}</p>
         <button onClick={this.handleLogOut}>Log Out</button>
       </div>
     )
   }
 }
 
-React.render(<SelfRegistration />, document.getElementById('app'))
+React.render(<App />, document.getElementById('app'))
