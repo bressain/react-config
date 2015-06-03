@@ -1,27 +1,31 @@
-import assign from 'lodash/object/assign'
 import clone from 'lodash/lang/clone'
 import autobind from 'autobind-decorator'
 import React from 'react'
 import EventEmitter from 'events'
 
-var ProfileStore = assign({}, EventEmitter.prototype, {
+class ProfileStore extends EventEmitter {
+  constructor () {
+    super()
+    this.profile = { submitted: false }
+  }
   getProfile () {
     return clone(this.profile)
-  },
+  }
   setProfile (profile) {
     this.profile = profile
     this.emit('change')
-  },
+  }
   isProfileSet () {
     return !!this.profile
-  },
+  }
   listen (listener) {
     this.addListener('change', listener)
-  },
+  }
   unlisten (listener) {
     this.removeListener('change', listener)
   }
-})
+}
+var profileStore = new ProfileStore()
 
 @autobind
 class App extends React.Component {
@@ -31,11 +35,11 @@ class App extends React.Component {
   }
 
   componentDidMount () {
-    ProfileStore.listen(this.onStoreChange)
+    profileStore.listen(this.onStoreChange)
   }
 
   componentWillUnmount () {
-    ProfileStore.unlisten(this.onStoreChange)
+    profileStore.unlisten(this.onStoreChange)
   }
 
   onStoreChange () {
@@ -44,13 +48,13 @@ class App extends React.Component {
 
   getStateFromStore () {
     return {
-      profile: ProfileStore.getProfile()
+      profile: profileStore.getProfile()
     }
   }
 
   updateProfile (profile) {
-    profile.submitted = !this.state.submitted
-    ProfileStore.setProfile(profile)
+    profile.submitted = !this.state.profile.submitted
+    profileStore.setProfile(profile)
   }
 
   render () {
