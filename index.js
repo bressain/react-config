@@ -6,26 +6,47 @@ import EventEmitter from 'events'
 class ProfileStore extends EventEmitter {
   constructor () {
     super()
-    this.profile = { submitted: false }
+    this.submitted = false
   }
+
   getProfile () {
     return clone(this.profile)
   }
+
   setProfile (profile) {
+    this.submitted = !this.submitted
     this.profile = profile
     this.emit('change')
   }
+
   isProfileSet () {
     return !!this.profile
   }
+
+  getSubmitted () {
+    return this.submitted
+  }
+
   listen (listener) {
     this.addListener('change', listener)
   }
+
   unlisten (listener) {
     this.removeListener('change', listener)
   }
 }
 var profileStore = new ProfileStore()
+
+class ProfileActions {
+  createProfile (profile) {
+    profileStore.setProfile(profile)
+  }
+
+  resetProfile () {
+    profileStore.setProfile({})
+  }
+}
+var profileActions = new ProfileActions()
 
 @autobind
 class App extends React.Component {
@@ -48,23 +69,13 @@ class App extends React.Component {
 
   getStateFromStore () {
     return {
-      profile: profileStore.getProfile()
+      profile: profileStore.getProfile(),
+      submitted: profileStore.getSubmitted()
     }
-  }
-
-  updateProfile (profile) {
-    profile.submitted = !this.state.profile.submitted
-    profileStore.setProfile(profile)
   }
 
   render () {
-    if (this.state.profile && this.state.profile.submitted) {
-      return (
-        <ProfileInfo profile={this.state.profile} handleLogOut={this.updateProfile} />
-      )
-    } else {
-      return <RegisterForm handleSubmit={this.updateProfile} />
-    }
+    return profileStore.getSubmitted() ? <ProfileInfo /> : <RegisterForm />
   }
 }
 
@@ -81,7 +92,7 @@ class RegisterForm extends React.Component {
     let last = React.findDOMNode(this.refs.last).value
     let email = React.findDOMNode(this.refs.email).value
 
-    this.props.handleSubmit({first, last, email})
+    profileActions.createProfile({first, last, email})
   }
 
   render () {
@@ -108,16 +119,17 @@ class ProfileInfo extends React.Component {
 
   handleLogOut (e) {
     e.preventDefault()
-    this.props.handleLogOut({})
+    profileActions.resetProfile()
   }
 
   render () {
+    var profile = profileStore.getProfile()
     return (
       <div>
         <h1>Your Profile</h1>
-        <p>First Name: {this.props.profile.first}</p>
-        <p>Last Name: {this.props.profile.last}</p>
-        <p>Email: {this.props.profile.email}</p>
+        <p>First Name: {profile.first}</p>
+        <p>Last Name: {profile.last}</p>
+        <p>Email: {profile.email}</p>
         <button onClick={this.handleLogOut}>Log Out</button>
       </div>
     )
