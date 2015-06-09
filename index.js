@@ -1,52 +1,22 @@
-import clone from 'lodash/lang/clone'
 import autobind from 'autobind-decorator'
 import React from 'react'
-import EventEmitter from 'events'
+import appDispatcher from './app-dispatcher'
+import profileStore from './profile-store'
 
-class ProfileStore extends EventEmitter {
-  constructor () {
-    super()
-    this.submitted = false
-  }
-
-  getProfile () {
-    return clone(this.profile)
-  }
-
-  setProfile (profile) {
-    this.submitted = !this.submitted
-    this.profile = profile
-    this.emit('change')
-  }
-
-  isProfileSet () {
-    return !!this.profile
-  }
-
-  getSubmitted () {
-    return this.submitted
-  }
-
-  listen (listener) {
-    this.addListener('change', listener)
-  }
-
-  unlisten (listener) {
-    this.removeListener('change', listener)
-  }
-}
-var profileStore = new ProfileStore()
-
-class ProfileActions {
+var profileActions = {
   createProfile (profile) {
-    profileStore.setProfile(profile)
-  }
-
+    appDispatcher.dispatch({
+      actionType: 'ADD_PROFILE',
+      profile
+    })
+  },
   resetProfile () {
-    profileStore.setProfile({})
+    appDispatcher.dispatch({
+      actionType: 'ADD_PROFILE',
+      profile: {}
+    })
   }
 }
-var profileActions = new ProfileActions()
 
 @autobind
 class App extends React.Component {
