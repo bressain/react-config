@@ -2,17 +2,50 @@ import autobind from 'autobind-decorator'
 import React from 'react'
 import appDispatcher from './app-dispatcher'
 import profileStore from './profile-store'
+import axios from 'axios'
+
+var apiHelpers = {
+  createProfile (profile) {
+    function serialize (rawProfile) {
+      return {
+        data: {firstName: rawProfile.first, lastName: rawProfile.last, email: rawProfile.email, type: 'users'}
+      }
+    }
+
+    function deserialize (apiProfile) {
+      return {first: apiProfile.data.firstName, last: apiProfile.data.lastName, email: apiProfile.data.email}
+    }
+
+    axios({
+      method: 'post',
+      url: 'http://demo-users-api.herokuapp.com/api/v1/users',
+      headers: { 'Content-Type': 'application/vnd.api+json' },
+      data: serialize(profile)
+    }).then(res => {
+      console.log('res.data', res.data)
+      var newProfile = deserialize(res.data)
+      profileActions.createProfileSuccess(newProfile)
+    })
+  }
+}
 
 var profileActions = {
   createProfile (profile) {
+    apiHelpers.createProfile(profile)
     appDispatcher.dispatch({
       actionType: 'ADD_PROFILE',
       profile
     })
   },
+  createProfileSuccess (profile) {
+    appDispatcher.dispatch({
+      actionType: 'ADD_PROFILE_SUCCESS',
+      profile
+    })
+  },
   resetProfile () {
     appDispatcher.dispatch({
-      actionType: 'ADD_PROFILE',
+      actionType: 'ADD_PROFILE_SUCCESS',
       profile: {}
     })
   }
@@ -25,7 +58,7 @@ class App extends React.Component {
     this.state = this.getStateFromStore()
   }
 
-  componentDidMount () {
+  componentWillMount () {
     profileStore.listen(this.onStoreChange)
   }
 

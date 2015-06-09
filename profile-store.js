@@ -35,7 +35,7 @@ var profileStore = new ProfileStore()
 
 profileStore.dispatchToken = appDispatcher.register(function (payload) {
   switch (payload.actionType) {
-    case 'ADD_PROFILE':
+    case 'ADD_PROFILE_SUCCESS':
       submitted = !submitted
       profile = payload.profile
       profileStore.emitChange()
