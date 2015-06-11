@@ -3,6 +3,16 @@ import React from 'react'
 import profileStore from './profile-store'
 import profileActions from './profile-actions'
 
+var styles = {
+  form: {
+    float: 'left',
+    width: '300px'
+  },
+  sidebar: {
+    overflow: 'auto'
+  }
+}
+
 @autobind
 class App extends React.Component {
   constructor () {
@@ -12,6 +22,7 @@ class App extends React.Component {
 
   componentWillMount () {
     profileStore.listen(this.onStoreChange)
+    profileActions.getRegisteredProfiles()
   }
 
   componentWillUnmount () {
@@ -25,12 +36,22 @@ class App extends React.Component {
   getStateFromStore () {
     return {
       profile: profileStore.getProfile(),
-      submitted: profileStore.getSubmitted()
+      submitted: profileStore.getSubmitted(),
+      registeredProfiles: profileStore.getRegisteredProfiles()
     }
   }
 
-  render () {
+  renderProfile () {
     return profileStore.getSubmitted() ? <ProfileInfo /> : <RegisterForm />
+  }
+
+  render () {
+    return (
+      <div>
+        {this.renderProfile()}
+        <RegisteredProfiles />
+      </div>
+    )
   }
 }
 
@@ -52,7 +73,7 @@ class RegisterForm extends React.Component {
 
   render () {
     return (
-      <div>
+      <div style={styles.form}>
         <h1>Register yo self</h1>
         <label for="first">First Name</label><br />
         <input ref="first" type="text" /><br />
@@ -80,13 +101,38 @@ class ProfileInfo extends React.Component {
   render () {
     var profile = profileStore.getProfile()
     return (
-      <div>
+      <div style={styles.form}>
         <h1>Your Profile</h1>
         <p>First Name: {profile.first}</p>
         <p>Last Name: {profile.last}</p>
         <p>Email: {profile.email}</p>
         <button onClick={this.handleLogOut}>Log Out</button>
       </div>
+    )
+  }
+}
+
+@autobind
+class RegisteredProfiles extends React.Component {
+  constructor() {
+    super(arguments)
+  }
+
+  renderRegisteredProfiles () {
+    var profiles = profileStore.getRegisteredProfiles()
+    return profiles.map((x, i) => {
+      return <li key={i}>{x.first + ' ' + x.last + ' ' + x.email}</li>
+    })
+  }
+
+  render () {
+    return (
+    <div style={styles.sidebar}>
+      <h1>Registered Profiles</h1>
+      <ul>
+        {this.renderRegisteredProfiles()}
+      </ul>
+    </div>
     )
   }
 }
